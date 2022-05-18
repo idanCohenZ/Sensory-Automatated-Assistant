@@ -1,6 +1,7 @@
 import time
 import pyttsx3
 from pymata4 import pymata4
+from pyfirmata import Arduino, SERVO
 import pywhatkit
 
 # connect an arduino and find port
@@ -31,8 +32,8 @@ def take_command():
     return command
 
 
-# internet version that looks good - distance with ultra - sonic:
-def check_distance():
+
+def check_distance(): # working
     board.set_pin_mode_sonar(triggerPin, echoPin, the_callback)
     engine.say("checking distance now")
     engine.runAndWait()
@@ -50,6 +51,42 @@ def the_callback(data):
 
 
 
+def check_temperature(): #LM-35 TEMPERATURE - working!! woks for A1 too
+    board.set_pin_mode_analog_input(0)
+    for x in range(6):
+        voltage, time_stamp = board.analog_read(0)
+        temperature_c = (voltage * 5000) / 1024
+        print("The temperture is : ", temperature_c / 10)
+        time.sleep(2)
+
+
+def check_LightingMode(): #LDR -work!! (somethimes will skip the first text and show 0 due to speed
+    #thus the few repeated tests
+    board.set_pin_mode_analog_input(1)
+    for x in range(6):
+        voltage, time_stamp = board.analog_read(1)
+        # light_level = (voltage * 5000) / 1024
+        print("The light level is : ", voltage)
+        time.sleep(2)
+        if (voltage < 420):
+            print("It's a little dark, turn on the light!")
+        else:
+            print("it's so bright!!")
+
+    if (voltage < 420):
+         talk("It's a little dark, turn on the light!")
+    else:
+        talk("it's so bright!!")
+
+
+
+def rotate_servo(): #needs checking but i think it would work
+    # set the pin mode
+    board.set_pin_mode_servo(10)
+    board.servo_write(10, 0)
+    time.sleep(1)
+    board.servo_write(10, 90)
+    time.sleep(1)
 
 
 
@@ -63,6 +100,18 @@ def run_alexa():
 
     if 'distance' in command:
         check_distance()
+
+    if 'weather' in command:
+        check_temperature()
+
+    if 'light' in command:
+        check_LightingMode()
+
+    if 'motor' in command:
+        rotate_servo()
+
+
+
 
 
 run_alexa()
