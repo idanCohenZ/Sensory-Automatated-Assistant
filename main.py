@@ -73,7 +73,6 @@ def check_LightingMode():
     board.set_pin_mode_analog_input(1)
     for x in range(6):
         voltage, time_stamp = board.analog_read(1)
-        # light_level = (voltage * 5000) / 1024
         print("The light level is : ", voltage)
         time.sleep(2)
 
